@@ -1,0 +1,36 @@
+- name: role for providing an user SSH access
+  hosts: dev
+  remote_user: ubuntu
+  gather_facts: false
+
+  tasks:
+    - name: create the user
+      user:
+        name: "{{ user_name }}"
+        shell: /bin/bash
+        create_home: true
+      become: true
+
+    - name: add public key to the users authorized_keys file
+      authorized_key:
+        user: "{{ user_name }}"
+        key: "{{ lookup('file', '{{ key_path }}') }}"
+        state: present
+      become: true
+
+    - name: add users to the AllowUsers to sshd_config
+      replace:
+        backup: yes
+        dest: /etc/ssh/sshd_config
+        regexp: '^(AllowUsers(?!.*\b{{ user_name }}\b).*)$'
+        replace: '\1 {{ user_name }}'
+      become: true
+      notify:
+        - restart ssh
+
+  handlers:
+    - name: restart ssh
+      service:
+         name: ssh
+         state: restarted
+      become: true

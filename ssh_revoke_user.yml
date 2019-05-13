@@ -1,0 +1,22 @@
+- name: role for providing an user SSH access
+  hosts: dev
+  remote_user: ubuntu
+  gather_facts: false
+
+  tasks:
+    - name: remove user from AllowUsers in sshd_config
+      replace:
+        backup: no
+        dest: /etc/ssh/sshd_config
+        regexp: '^(AllowUsers.*)\b{{ user_name }}\b(.*)$'
+        replace: '\1\2'
+      become: true
+      notify:
+        - restart ssh
+
+  handlers:
+    - name: restart ssh
+      service:
+         name: ssh
+         state: restarted
+      become: true
