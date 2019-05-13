@@ -17,7 +17,7 @@ Procedure:
 2. To provide an user with SSH access
 
     a. Generate a SSH key for that user
-    b. Store the key in a particular location
+    b. Store the key in a particular location in the ansible workstation
     c. Execute the below command in the ansible workstation.
 
      ansible-playbook -i /etc/ansible/hosts ssh_add_user.yml -e "user_name=john key_path=/home/ubuntu/.ssh/id_rsa.pub"
